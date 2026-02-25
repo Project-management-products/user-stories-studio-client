@@ -113,8 +113,17 @@ dist
 # FuseBox cache
 .fusebox/
 
+# Backups
+*.backup
+*.bak
+
 # DynamoDB Local files
 .dynamodb/
+
+# Bases de datos locales
+*.sqlite
+*.sqlite3
+*.db
 
 # Firebase cache directory
 .firebase/
