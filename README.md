@@ -1,2 +1,2 @@
-# -U-user-stories-studio-api
-Express.js backend server that acts as a secure proxy between the user-stories-studio frontend and IA providers API. Handles API key management and request forwarding for AI-powered requirements analysis.
+# Uuser-stories-studio-api
+AI-powered web application for managing and refining software requirements. Allows teams to input, iterate, and split requirements before generating user stories and acceptance criteria
