@@ -2,7 +2,7 @@ import { useState } from "react";
 
 // ─── Mock generateContent (replace with your real function) ───────────────────
 async function generateContent(projectInfo, requirement) {
-  const response = await fetch("http://localhost:3001/api/generate", {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
