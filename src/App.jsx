@@ -221,14 +221,16 @@ function StepIteration({ requirements, onChange, onNext, onBack }) {
 function StepAnalysis({ projectInfo, requirements, onBack }) {
   const [results, setResults] = useState({});
   const [loading, setLoading] = useState({});
-
   const analyze = async (req) => {
     setLoading((l) => ({ ...l, [req.id]: true }));
     try {
       const result = await generateContent(projectInfo, req);
       setResults((r) => ({ ...r, [req.id]: result }));
     } catch (e) {
-      setResults((r) => ({ ...r, [req.id]: `Error: ${e.message}` }));
+      const message = e.name === 'TypeError' && e.message === 'Failed to fetch'
+        ? 'No se pudo conectar con el servidor. Intenta más tarde.'
+        : e.message;
+      setResults((r) => ({ ...r, [req.id]: `Error: ${message}` }));
     } finally {
       setLoading((l) => ({ ...l, [req.id]: false }));
     }
