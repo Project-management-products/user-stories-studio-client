@@ -36,8 +36,8 @@ export function StepAnalysis() {
         <div className="animate-in fade-in duration-500">
             <h2 className="font-sans text-[22px] font-bold text-[#1a1a2e] mt-0 mb-2">Análisis & Historias de Usuario</h2>
             <p className="font-sans text-sm text-[#666] mb-6 leading-relaxed">
-                Envía los requerimientos a <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">generateContent</code> para obtener el análisis.
-                Solo los requerimientos <strong className="text-green-700">aprobados</strong> pueden analizarse.
+                Genera un análisis detallado e historias de usuario a partir de tus requerimientos.
+                Solo los requerimientos <strong className="text-green-700">aprobados</strong> pueden ser procesados.
             </p>
 
             {approvedReqs.length === 0 && (
@@ -115,8 +115,8 @@ export function StepAnalysis() {
                             )}
 
                             {hasResult && !isLoading && (
-                                <div className="ml-10 mt-2 bg-white border border-gray-100 rounded-lg p-5 shadow-sm overflow-hidden prose prose-sm max-w-none">
-                                    <div className="font-sans text-[13px] text-[#333] leading-relaxed">
+                                <div className="ml-10 mt-2 bg-white border border-gray-100 rounded-lg p-6 shadow-sm overflow-hidden">
+                                    <div className="prose prose-sm max-w-none text-[#333]">
                                         <ReactMarkdown>{hasResult}</ReactMarkdown>
                                     </div>
                                 </div>
