@@ -44,7 +44,7 @@ function Steps({ current }) {
             </div>
           </div>
           {i < steps.length - 1 && (
-            <div style={{ height: 2, flex: 1, background: i < current ? "#1a1a2e" : "#e8e8e8", transition: "all 0.3s", marginBottom: 24 }} />
+            <div style={{ height: 4, flex: 1, background: i < current ? "#1a1a2e" : "#e8e8e8", transition: "all 0.3s", marginBottom: 24 }} />
           )}
         </div>
       ))}
@@ -341,17 +341,18 @@ export default function App() {
   body { 
     margin: 0; 
     background: #f2f2f0;
-    /* --- Agrega esto para centrar --- */
+    min-height: 100vh;
+  }
+  #root {
+    width: 100%;
     display: flex;
-    justify-content: center; /* Centrado horizontal */
-    align-items: center;     /* Centrado vertical */
-    min-height: 100vh;       /* Asegura que use todo el alto de la pantalla */
+    justify-content: center;
   }
   textarea:focus { border-color: #1a1a2e !important; }
   @keyframes spin { to { transform: rotate(360deg); } }
 `}</style>
-      <div style={{ minHeight: "100vh", background: "#f2f2f0", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "40px 20px" }}>
-        <div style={{ width: "100%", maxWidth: 720 }}>
+      <div style={{ width: "100%", background: "#f2f2f0", display: "flex", justifyContent: "center", padding: "40px 20px" }}>
+        <div style={{ width: "100%", maxWidth: "1000px" }}>
           <div style={{ marginBottom: 36 }}>
             <div style={{ display: "inline-block", background: "#1a1a2e", color: "#c8f135", fontFamily: "'DM Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", padding: "4px 12px", borderRadius: 4, marginBottom: 12 }}>
               Requirements Studio
