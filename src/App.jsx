@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import ReactMarkdown from "react-markdown";
 
 // ─── Mock generateContent (replace with your real function) ───────────────────
@@ -23,31 +23,53 @@ async function generateContent(projectInfo, requirement) {
 function Steps({ current }) {
   const steps = ["Proyecto y Requerimientos", "Iteración", "Análisis"];
   return (
-    <div style={{ display: "flex", gap: 0, marginBottom: 40 }}>
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      marginBottom: 40,
+      position: "relative",
+      maxWidth: 600,
+      margin: "0 auto 60px"
+    }}>
       {steps.map((s, i) => (
-        <div key={i} style={{ display: "flex", alignItems: "center", flex: 1 }}>
-          <div style={{ textAlign: "center", flex: 1 }}>
+        <Fragment key={i}>
+          {/* Círculo y Etiqueta */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 40, zIndex: 2 }}>
             <div
               style={{
                 width: 36, height: 36, borderRadius: "50%",
                 background: i <= current ? "#1a1a2e" : "#e8e8e8",
                 color: i <= current ? "#c8f135" : "#999",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                margin: "0 auto 6px", fontWeight: 700, fontSize: 14,
+                fontWeight: 700, fontSize: 14,
                 fontFamily: "'DM Mono', monospace", transition: "all 0.3s",
+                boxShadow: "0 0 0 4px #fff"
               }}
             >
               {i + 1}
             </div>
-            <div style={{ fontSize: 11, fontWeight: i === current ? 700 : 400, color: i === current ? "#1a1a2e" : "#999", fontFamily: "'DM Sans', sans-serif", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            <div style={{
+              position: "absolute", top: 42, width: 120, textAlign: "center",
+              fontSize: 10, fontWeight: i === current ? 700 : 400,
+              color: i === current ? "#1a1a2e" : "#999",
+              fontFamily: "'DM Sans', sans-serif", letterSpacing: "0.05em", textTransform: "uppercase"
+            }}>
               {s}
             </div>
           </div>
+
+          {/* Barra conexiante */}
           {i < steps.length - 1 && (
-            <div style={{ height: 4, flex: 1, background: i < current ? "#1a1a2e" : "#e8e8e8", transition: "all 0.3s", marginBottom: 24 }} />
+            <div style={{
+              flex: 1, height: 4,
+              background: i < current ? "#1a1a2e" : "#e8e8e8",
+              transition: "all 0.3s",
+              margin: "0 -4px"
+            }} />
           )}
-        </div>
+        </Fragment>
       ))}
+      <div style={{ height: 40 }} /> {/* Espacio para las etiquetas absolutas */}
     </div>
   );
 }
