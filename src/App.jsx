@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 // ─── Mock generateContent (replace with your real function) ───────────────────
 async function generateContent(projectInfo, requirement) {
@@ -20,7 +21,7 @@ async function generateContent(projectInfo, requirement) {
 
 // ─── STEP INDICATOR ──────────────────────────────────────────────────────────
 function Steps({ current }) {
-  const steps = ["Proyecto", "Requerimientos", "Iteración", "Análisis"];
+  const steps = ["Proyecto y Requerimientos", "Iteración", "Análisis"];
   return (
     <div style={{ display: "flex", gap: 0, marginBottom: 40 }}>
       {steps.map((s, i) => (
@@ -51,10 +52,25 @@ function Steps({ current }) {
   );
 }
 
-// ─── STEP 1: PROJECT INFO ─────────────────────────────────────────────────────
-function StepProject({ data, onChange, onNext }) {
+// ─── STEP 1: PROYECTO Y REQUERIMIENTOS (fusionado) ───────────────────────────
+function StepProjectAndRequirements({ data, onChangeData, requirements, onChangeReqs, onNext }) {
+  const [input, setInput] = useState("");
+
+  const addReq = () => {
+    const lines = input.split("\n").map((l) => l.trim()).filter(Boolean);
+    if (!lines.length) return;
+    const newReqs = lines.map((text, i) => ({ id: Date.now() + i, text, status: "pending" }));
+    onChangeReqs([...requirements, ...newReqs]);
+    setInput("");
+  };
+
+  const remove = (id) => onChangeReqs(requirements.filter((r) => r.id !== id));
+
+  const canContinue = data.name && data.objective && requirements.length > 0;
+
   return (
     <div>
+      {/* ── Información del Proyecto ── */}
       <h2 style={styles.sectionTitle}>Información del Proyecto</h2>
       <p style={styles.hint}>Describe el contexto general. Esto se usará como base para analizar cada requerimiento.</p>
       {[
@@ -65,33 +81,15 @@ function StepProject({ data, onChange, onNext }) {
       ].map(({ key, label, placeholder }) => (
         <div key={key} style={{ marginBottom: 20 }}>
           <label style={styles.label}>{label}</label>
-          <textarea value={data[key] || ""} onChange={(e) => onChange({ ...data, [key]: e.target.value })} placeholder={placeholder} rows={key === "context" ? 4 : 2} style={styles.textarea} />
+          <textarea value={data[key] || ""} onChange={(e) => onChangeData({ ...data, [key]: e.target.value })} placeholder={placeholder} rows={key === "context" ? 4 : 2} style={styles.textarea} />
         </div>
       ))}
-      <button onClick={onNext} disabled={!data.name || !data.objective} style={{ ...styles.btnPrimary, opacity: !data.name || !data.objective ? 0.4 : 1 }}>
-        Continuar →
-      </button>
-    </div>
-  );
-}
 
-// ─── STEP 2: REQUIREMENTS INPUT ───────────────────────────────────────────────
-function StepRequirements({ requirements, onChange, onNext, onBack }) {
-  const [input, setInput] = useState("");
+      {/* ── Divider ── */}
+      <div style={{ borderTop: "2px solid #ebebeb", margin: "28px 0" }} />
 
-  const addReq = () => {
-    const lines = input.split("\n").map((l) => l.trim()).filter(Boolean);
-    if (!lines.length) return;
-    const newReqs = lines.map((text, i) => ({ id: Date.now() + i, text, status: "pending" }));
-    onChange([...requirements, ...newReqs]);
-    setInput("");
-  };
-
-  const remove = (id) => onChange(requirements.filter((r) => r.id !== id));
-
-  return (
-    <div>
-      <h2 style={styles.sectionTitle}>Requerimientos</h2>
+      {/* ── Requerimientos ── */}
+      <h2 style={{ ...styles.sectionTitle, marginTop: 0 }}>Requerimientos</h2>
       <p style={styles.hint}>Ingresa uno o varios requerimientos (uno por línea). Puedes agregar en múltiples rondas.</p>
       <textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder={"El sistema debe permitir login con Google\nEl usuario puede exportar reportes en PDF\n..."} rows={5} style={styles.textarea} />
       <button onClick={addReq} disabled={!input.trim()} style={{ ...styles.btnSecondary, marginBottom: 28, opacity: !input.trim() ? 0.4 : 1 }}>
@@ -111,12 +109,9 @@ function StepRequirements({ requirements, onChange, onNext, onBack }) {
         </div>
       )}
 
-      <div style={{ display: "flex", gap: 12 }}>
-        <button onClick={onBack} style={styles.btnGhost}>← Atrás</button>
-        <button onClick={onNext} disabled={requirements.length === 0} style={{ ...styles.btnPrimary, opacity: requirements.length === 0 ? 0.4 : 1 }}>
-          Iterar Requerimientos →
-        </button>
-      </div>
+      <button onClick={onNext} disabled={!canContinue} style={{ ...styles.btnPrimary, opacity: !canContinue ? 0.4 : 1 }}>
+        Iterar Requerimientos →
+      </button>
     </div>
   );
 }
@@ -236,8 +231,10 @@ function StepAnalysis({ projectInfo, requirements, onBack }) {
     }
   };
 
+  const approvedReqs = requirements.filter((r) => r.status === "approved");
+
   const analyzeAll = async () => {
-    for (const req of requirements) await analyze(req);
+    for (const req of approvedReqs) await analyze(req);
   };
 
   const anyLoading = Object.values(loading).some(Boolean);
@@ -247,36 +244,67 @@ function StepAnalysis({ projectInfo, requirements, onBack }) {
       <h2 style={styles.sectionTitle}>Análisis & Historias de Usuario</h2>
       <p style={styles.hint}>
         Envía los requerimientos a <code style={{ background: "#f0f0f0", padding: "1px 6px", borderRadius: 4, fontSize: 13 }}>generateContent</code> para obtener el análisis.
+        Solo los requerimientos <strong>aprobados</strong> pueden analizarse.
       </p>
+
+      {approvedReqs.length === 0 && (
+        <div style={{ background: "#fff9e6", border: "2px solid #f0c040", borderRadius: 10, padding: "14px 18px", marginBottom: 24, fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#7a5c00" }}>
+          ⚠️ No hay requerimientos aprobados. Regresa al paso de <strong>Iteración</strong> y aprueba al menos uno antes de continuar.
+        </div>
+      )}
+
       <div style={{ display: "flex", gap: 12, marginBottom: 28 }}>
-        <button onClick={analyzeAll} disabled={anyLoading} style={{ ...styles.btnPrimary, opacity: anyLoading ? 0.5 : 1 }}>
-          {anyLoading ? "Analizando..." : "⚡ Analizar Todos"}
+        <button onClick={analyzeAll} disabled={anyLoading || approvedReqs.length === 0} style={{ ...styles.btnPrimary, opacity: anyLoading || approvedReqs.length === 0 ? 0.5 : 1 }}>
+          {anyLoading ? "Analizando..." : "⚡ Analizar Todos los Aprobados"}
         </button>
         <button onClick={onBack} style={styles.btnGhost}>← Atrás</button>
       </div>
 
-      {requirements.map((r, i) => (
-        <div key={r.id} style={{ background: "#fafafa", border: "2px solid #ebebeb", borderRadius: 12, padding: 20, marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
-            <span style={styles.reqNum}>#{i + 1}</span>
-            <span style={{ flex: 1, fontSize: 14, color: "#1a1a2e", fontFamily: "'DM Sans', sans-serif" }}>{r.text}</span>
-            <button onClick={() => analyze(r)} disabled={loading[r.id]} style={{ ...styles.btnSecondary, opacity: loading[r.id] ? 0.5 : 1, whiteSpace: "nowrap" }}>
-              {loading[r.id] ? "..." : results[r.id] ? "↺ Re-analizar" : "Analizar"}
-            </button>
+      {requirements.map((r, i) => {
+        const isApproved = r.status === "approved";
+        const statusColors = {
+          pending: { bg: "#f5f5f5", text: "#888", label: "Pendiente" },
+          edited: { bg: "#fff9e6", text: "#b07d00", label: "Editado" },
+          approved: { bg: "#e8f5e0", text: "#3a7d1e", label: "Aprobado" },
+          derived: { bg: "#e8f0ff", text: "#2952a3", label: "Derivado" },
+        };
+        const sc = statusColors[r.status] || statusColors.pending;
+        return (
+          <div key={r.id} style={{ background: isApproved ? "#fafafa" : "#f8f8f8", border: `2px solid ${isApproved ? "#ebebeb" : "#e8e8e8"}`, borderRadius: 12, padding: 20, marginBottom: 16, opacity: isApproved ? 1 : 0.65 }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
+              <span style={styles.reqNum}>#{i + 1}</span>
+              <span style={{ flex: 1, fontSize: 14, color: "#1a1a2e", fontFamily: "'DM Sans', sans-serif" }}>{r.text}</span>
+              <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20, background: sc.bg, color: sc.text, fontFamily: "'DM Mono', monospace", whiteSpace: "nowrap" }}>
+                {sc.label}
+              </span>
+              <button
+                onClick={() => analyze(r)}
+                disabled={!isApproved || loading[r.id]}
+                title={!isApproved ? "Solo los requerimientos aprobados pueden analizarse" : ""}
+                style={{ ...styles.btnSecondary, opacity: !isApproved || loading[r.id] ? 0.35 : 1, whiteSpace: "nowrap", cursor: !isApproved ? "not-allowed" : "pointer" }}
+              >
+                {loading[r.id] ? "..." : results[r.id] ? "↺ Re-analizar" : "Analizar"}
+              </button>
+            </div>
+            {r.derivedFrom && (
+              <div style={{ fontSize: 11, color: "#888", fontFamily: "'DM Sans', sans-serif", marginBottom: 8 }}>
+                ↳ Derivado de #{requirements.findIndex((x) => x.id === r.derivedFrom) + 1}
+              </div>
+            )}
+            {loading[r.id] && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 0" }}>
+                <div style={styles.spinner} />
+                <span style={{ fontSize: 13, color: "#888", fontFamily: "'DM Sans', sans-serif" }}>Generando análisis...</span>
+              </div>
+            )}
+            {results[r.id] && !loading[r.id] && (
+              <div style={{ background: "#fff", border: "1px solid #e0e0e0", borderRadius: 8, padding: 16, fontSize: 13, color: "#333", fontFamily: "'DM Sans', sans-serif", lineHeight: 1.7 }}>
+                <ReactMarkdown>{results[r.id]}</ReactMarkdown>
+              </div>
+            )}
           </div>
-          {loading[r.id] && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 0" }}>
-              <div style={styles.spinner} />
-              <span style={{ fontSize: 13, color: "#888", fontFamily: "'DM Sans', sans-serif" }}>Generando análisis...</span>
-            </div>
-          )}
-          {results[r.id] && !loading[r.id] && (
-            <div style={{ background: "#fff", border: "1px solid #e0e0e0", borderRadius: 8, padding: 16, fontSize: 13, color: "#333", fontFamily: "'DM Sans', sans-serif", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
-              {results[r.id]}
-            </div>
-          )}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -325,10 +353,9 @@ export default function App() {
           </div>
           <div style={{ background: "#fff", borderRadius: 16, padding: 36, boxShadow: "0 2px 24px rgba(0,0,0,0.07)" }}>
             <Steps current={step} />
-            {step === 0 && <StepProject data={projectInfo} onChange={setProjectInfo} onNext={() => setStep(1)} />}
-            {step === 1 && <StepRequirements requirements={requirements} onChange={setRequirements} onNext={() => setStep(2)} onBack={() => setStep(0)} />}
-            {step === 2 && <StepIteration requirements={requirements} onChange={setRequirements} onNext={() => setStep(3)} onBack={() => setStep(1)} />}
-            {step === 3 && <StepAnalysis projectInfo={projectInfo} requirements={requirements} onBack={() => setStep(2)} />}
+            {step === 0 && <StepProjectAndRequirements data={projectInfo} onChangeData={setProjectInfo} requirements={requirements} onChangeReqs={setRequirements} onNext={() => setStep(1)} />}
+            {step === 1 && <StepIteration requirements={requirements} onChange={setRequirements} onNext={() => setStep(2)} onBack={() => setStep(0)} />}
+            {step === 2 && <StepAnalysis projectInfo={projectInfo} requirements={requirements} onBack={() => setStep(1)} />}
           </div>
         </div>
       </div>
