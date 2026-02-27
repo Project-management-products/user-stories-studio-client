@@ -130,6 +130,7 @@ function StepProjectAndRequirements({ data, onChangeData, requirements, onChange
           ))}
         </div>
       )}
+      &nbsp;
 
       <button onClick={onNext} disabled={!canContinue} style={{ ...styles.btnPrimary, opacity: !canContinue ? 0.4 : 1 }}>
         Iterar Requerimientos →
