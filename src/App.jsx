@@ -254,10 +254,10 @@ function StepAnalysis({ projectInfo, requirements, onBack }) {
       )}
 
       <div style={{ display: "flex", gap: 12, marginBottom: 28 }}>
+        <button onClick={onBack} style={styles.btnGhost}>← Atrás</button>
         <button onClick={analyzeAll} disabled={anyLoading || approvedReqs.length === 0} style={{ ...styles.btnPrimary, opacity: anyLoading || approvedReqs.length === 0 ? 0.5 : 1 }}>
           {anyLoading ? "Analizando..." : "⚡ Analizar Todos los Aprobados"}
         </button>
-        <button onClick={onBack} style={styles.btnGhost}>← Atrás</button>
       </div>
 
       {requirements.map((r, i) => {
@@ -335,20 +335,29 @@ export default function App() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=DM+Mono:wght@400;600&display=swap');
-        * { box-sizing: border-box; }
-        body { margin: 0; background: #f2f2f0; }
-        textarea:focus { border-color: #1a1a2e !important; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=DM+Mono:wght@400;600&display=swap');
+  
+  * { box-sizing: border-box; }
+  body { 
+    margin: 0; 
+    background: #f2f2f0;
+    /* --- Agrega esto para centrar --- */
+    display: flex;
+    justify-content: center; /* Centrado horizontal */
+    align-items: center;     /* Centrado vertical */
+    min-height: 100vh;       /* Asegura que use todo el alto de la pantalla */
+  }
+  textarea:focus { border-color: #1a1a2e !important; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+`}</style>
       <div style={{ minHeight: "100vh", background: "#f2f2f0", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "40px 20px" }}>
         <div style={{ width: "100%", maxWidth: 720 }}>
           <div style={{ marginBottom: 36 }}>
             <div style={{ display: "inline-block", background: "#1a1a2e", color: "#c8f135", fontFamily: "'DM Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", padding: "4px 12px", borderRadius: 4, marginBottom: 12 }}>
               Requirements Studio
             </div>
-            <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 32, fontWeight: 700, color: "#1a1a2e", margin: 0, lineHeight: 1.2 }}>
-              Generador de Historias<br />de Usuario
+            <h1 style={{ textAlign: "center", fontFamily: "'DM Sans', sans-serif", fontSize: 32, fontWeight: 700, color: "#1a1a2e", margin: 0, lineHeight: 1.2 }}>
+              Generador de Historias de Usuario
             </h1>
           </div>
           <div style={{ background: "#fff", borderRadius: 16, padding: 36, boxShadow: "0 2px 24px rgba(0,0,0,0.07)" }}>
